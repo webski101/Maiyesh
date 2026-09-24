@@ -1,5 +1,7 @@
 # Trial Zero — Win Strategy
 
+> **Shipped product name: Maiyesh** (this doc originally called it PROBE). Same design.
+
 Research snapshot for SharedNet / SharedOS + recommended product.
 
 ---
