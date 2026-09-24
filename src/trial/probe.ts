@@ -48,13 +48,13 @@ async function probeMcp(
       body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
     });
     const text = await res.text();
-    let body: unknown = text;
+    let body: unknown = text.slice(0, 8_000);
     try {
       body = JSON.parse(text);
     } catch {
-      /* keep text */
+      /* keep truncated text */
     }
-    return { status: res.status, headers: Object.fromEntries(res.headers.entries()), body };
+    return { status: res.status, body };
   }
 
   try {
@@ -148,11 +148,11 @@ async function probeHttp(endpoint: string): Promise<Omit<ProbeObservation, "tran
   try {
     const res = await withTimeout(fetch(endpoint, { method: "GET" }), 15_000);
     const text = await res.text();
-    let body: unknown = text;
+    let body: unknown = text.slice(0, 4_000);
     try {
       body = JSON.parse(text);
     } catch {
-      /* text */
+      /* keep truncated text */
     }
     if (!res.ok) failures.push(`HTTP ${res.status}`);
     return {

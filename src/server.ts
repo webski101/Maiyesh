@@ -11,8 +11,9 @@ const PORT = Number(process.env.MAIYESH_PORT ?? process.env.PORT ?? 3847);
 const app = new Hono();
 app.use("*", cors());
 
-app.get("/", (c) =>
-  c.html(`<!doctype html>
+app.get("/", (c) => {
+  const base = `http://127.0.0.1:${PORT}`;
+  return c.html(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -104,7 +105,7 @@ app.get("/", (c) =>
     </div>
     <section>
       <h2>Call it (MCP)</h2>
-      <pre>POST ${c.req.url.replace(/\\/$/, "")}/mcp
+      <pre>POST ${base}/mcp
 Content-Type: application/json
 
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
@@ -118,19 +119,19 @@ Content-Type: application/json
     </section>
     <section>
       <h2>Call it (REST)</h2>
-      <pre>curl -s http://127.0.0.1:${PORT}/v1/trial \\
+      <pre>curl -s ${base}/v1/trial \\
   -H 'content-type: application/json' \\
-  -d '{"endpoint":"http://127.0.0.1:${PORT}/mcp","transport":"mcp","claims":["MCP surface"]}'</pre>
+  -d '{"endpoint":"${base}/mcp","transport":"mcp","claims":["MCP surface"]}'</pre>
     </section>
     <section>
       <h2>CLI</h2>
       <pre>npx tsx src/cli.ts health
-npx tsx src/cli.ts trial --endpoint http://127.0.0.1:${PORT}/mcp --transport mcp</pre>
+npx tsx src/cli.ts trial --endpoint ${base}/mcp --transport mcp</pre>
     </section>
   </main>
 </body>
-</html>`),
-);
+</html>`);
+});
 
 app.get("/health", async (c) => {
   const result = await callTool("maiyesh_health", {});

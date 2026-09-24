@@ -291,14 +291,15 @@ export function createMaiyeshHost(
       }
       try {
         const result = await probeHandler(args);
+        const safe = JSON.parse(JSON.stringify(result)) as JsonObject;
         const rawPath = ["maiyesh", "raw", `${context.traceId}.json`];
-        store.set(rawPath.join("/"), result);
+        store.set(rawPath.join("/"), safe);
         return {
           callId: call.id,
           tool: call.tool,
           status: "succeeded",
           completedAt: context.now,
-          output: { raw_path: rawPath, result: result as JsonObject },
+          output: { raw_path: rawPath, result: safe },
         };
       } catch (err) {
         return {
