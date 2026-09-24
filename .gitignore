@@ -1,1 +1,9 @@
+node_modules/
+dist/
 agent-tools/
+.tmp/
+.sharednet/
+data/
+*.log
+.env
+.env.*

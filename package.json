@@ -1,0 +1,42 @@
+{
+  "name": "maiyesh",
+  "version": "0.1.0",
+  "description": "Maiyesh — permissioned agent-to-agent product trials on SharedOS / SharedNet",
+  "type": "module",
+  "bin": {
+    "maiyesh": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "start": "tsx src/server.ts",
+    "cli": "tsx src/cli.ts",
+    "test": "tsx --test src/**/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "sharedos",
+    "sharednet",
+    "mcp",
+    "agents",
+    "maiyesh"
+  ],
+  "dependencies": {
+    "@aicoo/sharedos": "^1.0.0-preview",
+    "@aicoo/sharedos-mcp": "^1.0.0-preview",
+    "@aicoo/sharedos-testkit": "^1.0.0-preview",
+    "@hono/node-server": "^1.19.0",
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "hono": "^4.13.9",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

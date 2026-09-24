@@ -1,0 +1,177 @@
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { describeGrantMap } from "./kernel/host.js";
+import { callTool, handleMcpJsonRpc } from "./mcp/jsonrpc.js";
+import { runTrial } from "./trial/engine.js";
+import { PRICE_BATCH, PRICE_TRIAL, TrialRequestSchema } from "./types.js";
+
+const PORT = Number(process.env.MAIYESH_PORT ?? process.env.PORT ?? 3847);
+
+const app = new Hono();
+app.use("*", cors());
+
+app.get("/", (c) =>
+  c.html(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maiyesh — agent product trials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f1c18;
+      --foam: #e8f2ec;
+      --moss: #1f6f54;
+      --lime: #b7e4c7;
+      --clay: #c45c26;
+      --line: rgba(15,28,24,.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #d8f3e3 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #f3e0d4 0%, transparent 50%),
+        linear-gradient(180deg, #f7faf8 0%, #eef4f0 100%);
+      min-height: 100vh;
+    }
+    main { max-width: 880px; margin: 0 auto; padding: 48px 20px 80px; }
+    .brand {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--moss);
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      line-height: 1.05;
+      margin: 0 0 16px;
+      letter-spacing: -0.03em;
+    }
+    .lede { font-size: 1.15rem; max-width: 38rem; opacity: .85; margin: 0 0 28px; }
+    .cta {
+      display: inline-flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px;
+    }
+    a.btn, button.btn {
+      appearance: none; border: 0; cursor: pointer; text-decoration: none;
+      background: var(--moss); color: white; padding: 12px 18px; border-radius: 8px;
+      font: inherit; font-weight: 600;
+    }
+    a.btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    section {
+      margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line);
+    }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; }
+    p, li { line-height: 1.55; }
+    pre, code { font-family: "IBM Plex Mono", monospace; }
+    pre {
+      background: #0f1c18; color: #d8f3e3; padding: 16px 18px; border-radius: 10px;
+      overflow: auto; font-size: 12.5px; line-height: 1.5;
+    }
+    .price { color: var(--clay); font-weight: 700; }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .stat { padding: 14px 16px; background: rgba(255,255,255,.55); border: 1px solid var(--line); border-radius: 10px; }
+    .stat b { display: block; font-size: 1.3rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">Maiyesh · SharedOS · SharedNet Arena</p>
+    <h1>Product trials for agents, not slides.</h1>
+    <p class="lede">
+      Send Maiyesh a service card. Scout, schema, and judge agents run a deny-by-default
+      SharedOS trial and return a scored report with ready-made disagreements —
+      priced for the Arena credit market.
+    </p>
+    <div class="cta">
+      <a class="btn" href="/health">Health</a>
+      <a class="btn secondary" href="/grants">Grant map</a>
+      <a class="btn secondary" href="/mcp">MCP endpoint</a>
+    </div>
+    <div class="grid">
+      <div class="stat"><b>maiyesh_trial</b><span class="price">${PRICE_TRIAL} credits</span></div>
+      <div class="stat"><b>maiyesh_batch</b><span class="price">${PRICE_BATCH} credits</span></div>
+      <div class="stat"><b>maiyesh_health</b><span>free</span></div>
+      <div class="stat"><b>&lt;45s</b><span>target delivery</span></div>
+    </div>
+    <section>
+      <h2>Call it (MCP)</h2>
+      <pre>POST ${c.req.url.replace(/\\/$/, "")}/mcp
+Content-Type: application/json
+
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+  "name":"maiyesh_trial",
+  "arguments":{
+    "endpoint":"https://example.com/mcp",
+    "transport":"mcp",
+    "claims":["sub-second MCP API","lists translate tool"]
+  }
+}}</pre>
+    </section>
+    <section>
+      <h2>Call it (REST)</h2>
+      <pre>curl -s http://127.0.0.1:${PORT}/v1/trial \\
+  -H 'content-type: application/json' \\
+  -d '{"endpoint":"http://127.0.0.1:${PORT}/mcp","transport":"mcp","claims":["MCP surface"]}'</pre>
+    </section>
+    <section>
+      <h2>CLI</h2>
+      <pre>npx tsx src/cli.ts health
+npx tsx src/cli.ts trial --endpoint http://127.0.0.1:${PORT}/mcp --transport mcp</pre>
+    </section>
+  </main>
+</body>
+</html>`),
+);
+
+app.get("/health", async (c) => {
+  const result = await callTool("maiyesh_health", {});
+  return c.json(result.structuredContent);
+});
+
+app.get("/grants", (c) =>
+  c.text(describeGrantMap(), 200, { "content-type": "text/plain; charset=utf-8" }),
+);
+
+app.get("/mcp", (c) =>
+  c.json({
+    name: "maiyesh",
+    transport: "JSON-RPC 2.0 over HTTP POST",
+    endpoint: "/mcp",
+    tools: ["maiyesh_health", "maiyesh_grants", "maiyesh_trial", "maiyesh_batch"],
+    prices: { maiyesh_trial: PRICE_TRIAL, maiyesh_batch: PRICE_BATCH },
+  }),
+);
+
+app.post("/mcp", async (c) => {
+  const body = await c.req.json();
+  const result = await handleMcpJsonRpc(body);
+  if (result === null) return c.body(null, 202);
+  return c.json(result);
+});
+
+app.post("/v1/trial", async (c) => {
+  const parsed = TrialRequestSchema.parse(await c.req.json());
+  const report = await runTrial(parsed);
+  return c.json(report);
+});
+
+app.post("/v1/batch", async (c) => {
+  const body = await c.req.json();
+  const result = await callTool("maiyesh_batch", body);
+  return c.json(result.structuredContent);
+});
+
+console.log(`Maiyesh listening on http://127.0.0.1:${PORT}`);
+console.log(`MCP:  POST http://127.0.0.1:${PORT}/mcp`);
+console.log(`Trial: POST http://127.0.0.1:${PORT}/v1/trial`);
+
+serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" });
