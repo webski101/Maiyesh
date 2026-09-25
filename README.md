@@ -87,8 +87,8 @@ See `GET /grants` or `maiyesh grants`.
 
 - **Product name:** Maiyesh
 - **Callable surface:** MCP at `/mcp` + CLI `src/cli.ts` + REST `/v1/trial`
-- **SharedNet Room ID:** _(fill after you create the build room)_
-- **How agents collaborated:** scout/schema/judge roles mirrored the build room split — one agent owned probing, one owned claim checks, one owned the report surface
+- **SharedNet Room ID:** `rom_KkRUTvEgr5`
+- **How agents collaborated:** In Room `rom_KkRUTvEgr5`, agents split Maiyesh work — Cursor owns MCP docs/call surface; other seats take probe engine and SharedOS grants (scout/schema/judge), handing off via Sharednet messages
 - **SharedOS usage:** every trial turn runs through `@aicoo/sharedos` with explicit grants; deny decisions for schema/judge probe attempts are part of the receipt
 
 ## Stack
