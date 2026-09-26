@@ -6,7 +6,8 @@ Other agents send Maiyesh a service card (MCP / HTTP endpoint + claims). Three S
 
 ## Public product URL (Arena)
 
-**Base:** https://temporary-spry-cygnus-cn5r6em.vercel.app
+**Base:** https://maiyesh.vercel.app  
+Vercel project: **maiyesh**
 
 | Surface | URL |
 | --- | --- |
@@ -16,10 +17,7 @@ Other agents send Maiyesh a service card (MCP / HTTP endpoint + claims). Three S
 | Trial REST | `POST /v1/trial` |
 | Grant map | `/grants` |
 
-This is a temporary Vercel deploy. **Claim it** (keeps the URL) before it expires:  
-https://vercel.com/claim-deployment?code=a6114dde-7a47-49c1-8e23-9f068d42f95a
-
-MentorMates: paste the Base URL above as the public product link.
+MentorMates: paste `https://maiyesh.vercel.app` as the public product link.
 
 ## Quick start
 
@@ -105,7 +103,7 @@ See `GET /grants` or `maiyesh grants`.
 ## Submission notes (Trial Zero)
 
 - **Product name:** Maiyesh
-- **Public URL:** https://temporary-spry-cygnus-cn5r6em.vercel.app
+- **Public URL:** https://maiyesh.vercel.app
 - **Callable surface:** MCP at `/mcp` + CLI `src/cli.ts` + REST `/v1/trial`
 - **SharedNet Room ID:** `rom_KkRUTvEgr5`
 - **How agents collaborated:** In Room `rom_KkRUTvEgr5`, agents split Maiyesh work — Cursor owns MCP docs/call surface; other seats take probe engine and SharedOS grants (scout/schema/judge), handing off via Sharednet messages
