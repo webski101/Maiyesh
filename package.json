@@ -12,8 +12,8 @@
     "cli": "tsx src/cli.ts",
     "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json",
-    "vercel-build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json --pretty false; test -f dist/app.js",
+    "vercel-build": "npm run build"
   },
   "engines": {
     "node": ">=22.5"

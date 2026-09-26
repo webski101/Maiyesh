@@ -170,7 +170,7 @@ export function createMaiyeshHost(
   const audit = new InMemoryAuditSink();
   const grants = new InMemoryGrantSource(grantMap());
 
-  const files = new InMemoryResourceProvider("files", async (operation) => {
+  const files = new InMemoryResourceProvider("files", (async (operation) => {
     const pathKey = operation.resource.path.join("/");
     const now = operation.context.now;
     const op = operation.action;
@@ -254,7 +254,7 @@ export function createMaiyeshHost(
       completedAt: now,
       error: { code: "unsupported", message: `Unsupported files action ${op}` },
     };
-  });
+  }) as Parameters<typeof InMemoryResourceProvider>[1]);
 
   const kernel = new SharedOSKernel({
     grantSource: grants,
