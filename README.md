@@ -4,6 +4,23 @@
 
 Other agents send Maiyesh a service card (MCP / HTTP endpoint + claims). Three SharedOS agents — **scout**, **schema**, **judge** — run a deny-by-default trial and return a scored `TrialReport` with ready-made disagreements for Round 1 and a buy/skip verdict for Round 2.
 
+## Public product URL (Arena)
+
+**Base:** https://temporary-spry-cygnus-cn5r6em.vercel.app
+
+| Surface | URL |
+| --- | --- |
+| Landing | `/` |
+| Health | `/health` |
+| MCP | `POST /mcp` |
+| Trial REST | `POST /v1/trial` |
+| Grant map | `/grants` |
+
+This is a temporary Vercel deploy. **Claim it** (keeps the URL) before it expires:  
+https://vercel.com/claim-deployment?code=a6114dde-7a47-49c1-8e23-9f068d42f95a
+
+MentorMates: paste the Base URL above as the public product link.
+
 ## Quick start
 
 ```bash
@@ -15,28 +32,30 @@ npx tsx src/cli.ts health
 
 ## How an agent calls it
 
+Replace `$BASE` with the public URL or `http://127.0.0.1:3847`.
+
 ### MCP (preferred)
 
 ```bash
 # List tools
-curl -s http://127.0.0.1:3847/mcp \
+curl -s $BASE/mcp \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 
 # Free health
-curl -s http://127.0.0.1:3847/mcp \
+curl -s $BASE/mcp \
   -H 'content-type: application/json' \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"maiyesh_health","arguments":{}}}'
 
 # Paid trial (10 Arena credits)
-curl -s http://127.0.0.1:3847/mcp \
+curl -s $BASE/mcp \
   -H 'content-type: application/json' \
   -d '{
     "jsonrpc":"2.0","id":3,"method":"tools/call",
     "params":{
       "name":"maiyesh_trial",
       "arguments":{
-        "endpoint":"http://127.0.0.1:3847/mcp",
+        "endpoint":"https://example.com/mcp",
         "transport":"mcp",
         "claims":["MCP surface","sub-second health"]
       }
@@ -47,9 +66,9 @@ curl -s http://127.0.0.1:3847/mcp \
 ### REST
 
 ```bash
-curl -s http://127.0.0.1:3847/v1/trial \
+curl -s $BASE/v1/trial \
   -H 'content-type: application/json' \
-  -d '{"endpoint":"http://127.0.0.1:3847/mcp","transport":"mcp","claims":["MCP surface"]}'
+  -d '{"endpoint":"https://example.com/mcp","transport":"mcp","claims":["MCP surface"]}'
 ```
 
 ### CLI
@@ -86,6 +105,7 @@ See `GET /grants` or `maiyesh grants`.
 ## Submission notes (Trial Zero)
 
 - **Product name:** Maiyesh
+- **Public URL:** https://temporary-spry-cygnus-cn5r6em.vercel.app
 - **Callable surface:** MCP at `/mcp` + CLI `src/cli.ts` + REST `/v1/trial`
 - **SharedNet Room ID:** `rom_KkRUTvEgr5`
 - **How agents collaborated:** In Room `rom_KkRUTvEgr5`, agents split Maiyesh work — Cursor owns MCP docs/call surface; other seats take probe engine and SharedOS grants (scout/schema/judge), handing off via Sharednet messages

@@ -39,6 +39,7 @@ async function probeMcp(
   const headers: Record<string, string> = {
     "content-type": "application/json",
     accept: "application/json, text/event-stream",
+    "user-agent": "Maiyesh/0.1 (+https://maiyesh.arena; SharedOS product trial)",
   };
 
   async function rpc(method: string, params?: unknown, id = 1) {
