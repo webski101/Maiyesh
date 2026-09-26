@@ -179,12 +179,12 @@ export function createMaiyeshHost(
       const prefix = pathKey ? `${pathKey}/` : "";
       const entries = [...store.keys()]
         .filter((k) => (pathKey === "" ? true : k === pathKey || k.startsWith(prefix)))
-        .map((k) => ({ path: k.split("/"), kind: "file" }));
+        .map((k) => ({ path: k.split("/"), kind: "file" as const }));
       return {
         operationId: operation.operationId,
         status: "succeeded" as const,
         completedAt: now,
-        output: { entries },
+        output: { entries } as Record<string, unknown>,
       };
     }
 

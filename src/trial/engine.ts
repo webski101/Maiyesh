@@ -133,7 +133,7 @@ async function invokeAs(
   const result = await host.kernel.invokeTool(context, {
     id: randomUUID(),
     tool,
-    arguments: args,
+    arguments: args as import("@aicoo/sharedos-contracts").JsonObject,
     traceId,
     requestedAt: context.now,
   });

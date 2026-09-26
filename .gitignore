@@ -3,6 +3,7 @@ dist/
 agent-tools/
 .tmp/
 .sharednet/
+.vercel/
 data/
 *.log
 .env

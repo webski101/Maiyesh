@@ -12,7 +12,8 @@
     "cli": "tsx src/cli.ts",
     "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json",
+    "vercel-build": "tsc -p tsconfig.build.json"
   },
   "engines": {
     "node": ">=22.5"
