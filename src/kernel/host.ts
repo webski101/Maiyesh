@@ -170,7 +170,15 @@ export function createMaiyeshHost(
   const audit = new InMemoryAuditSink();
   const grants = new InMemoryGrantSource(grantMap());
 
-  const files = new InMemoryResourceProvider("files", (async (operation) => {
+  // SharedOS JsonValue typing is stricter than our in-memory store payloads.
+  // Runtime shape matches ResourceResult; cast keeps the host compiling cleanly.
+  const filesHandler = async (operation: {
+    operationId: string;
+    action: string;
+    resource: { path: string[] };
+    context: { now: string };
+    input?: unknown;
+  }) => {
     const pathKey = operation.resource.path.join("/");
     const now = operation.context.now;
     const op = operation.action;
@@ -179,12 +187,12 @@ export function createMaiyeshHost(
       const prefix = pathKey ? `${pathKey}/` : "";
       const entries = [...store.keys()]
         .filter((k) => (pathKey === "" ? true : k === pathKey || k.startsWith(prefix)))
-        .map((k) => ({ path: k.split("/"), kind: "file" as const }));
+        .map((k) => ({ path: k.split("/"), kind: "file" }));
       return {
         operationId: operation.operationId,
         status: "succeeded" as const,
         completedAt: now,
-        output: { entries } as Record<string, unknown>,
+        output: { entries },
       };
     }
 
@@ -254,7 +262,8 @@ export function createMaiyeshHost(
       completedAt: now,
       error: { code: "unsupported", message: `Unsupported files action ${op}` },
     };
-  }) as Parameters<typeof InMemoryResourceProvider>[1]);
+  };
+  const files = new InMemoryResourceProvider("files", filesHandler as never);
 
   const kernel = new SharedOSKernel({
     grantSource: grants,

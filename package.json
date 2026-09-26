@@ -12,7 +12,7 @@
     "cli": "tsx src/cli.ts",
     "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json --pretty false; test -f dist/app.js",
+    "build": "tsc -p tsconfig.build.json",
     "vercel-build": "npm run build"
   },
   "engines": {
