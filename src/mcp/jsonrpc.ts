@@ -28,12 +28,37 @@ const TOOLS = [
       required: ["endpoint"],
       additionalProperties: false,
       properties: {
-        endpoint: { type: "string" },
-        transport: { type: "string", enum: ["mcp", "http", "cli"] },
-        claims: { type: "array", items: { type: "string" } },
-        sample_input: { type: "object" },
-        tool_name: { type: "string" },
-        price_credits: { type: "number" },
+        endpoint: {
+          type: "string",
+          description:
+            "Target to trial: MCP URL, HTTP URL, or CLI command template (no secrets).",
+        },
+        transport: {
+          type: "string",
+          enum: ["mcp", "http", "cli"],
+          description: "How to reach the target. Default mcp if omitted.",
+        },
+        claims: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Seller claims to check, e.g. [\"MCP surface\", \"sub-second health\"].",
+        },
+        sample_input: {
+          type: "object",
+          description:
+            "Optional JSON arguments for a sample tool/HTTP call after discovery.",
+        },
+        tool_name: {
+          type: "string",
+          description:
+            "For MCP: tool to sample-call after tools/list. Omit to only list tools.",
+        },
+        price_credits: {
+          type: "number",
+          description:
+            "Optional advertised price of the target (for verdict context). Not charged by Maiyesh.",
+        },
       },
     },
   },
@@ -49,15 +74,33 @@ const TOOLS = [
           type: "array",
           minItems: 1,
           maxItems: 3,
+          description: "One to three trial targets (same fields as maiyesh_trial).",
           items: {
             type: "object",
             required: ["endpoint"],
             properties: {
-              endpoint: { type: "string" },
-              transport: { type: "string", enum: ["mcp", "http", "cli"] },
-              claims: { type: "array", items: { type: "string" } },
-              sample_input: { type: "object" },
-              tool_name: { type: "string" },
+              endpoint: {
+                type: "string",
+                description: "Target MCP URL, HTTP URL, or CLI template.",
+              },
+              transport: {
+                type: "string",
+                enum: ["mcp", "http", "cli"],
+                description: "How to reach this target. Default mcp.",
+              },
+              claims: {
+                type: "array",
+                items: { type: "string" },
+                description: "Claims to check for this target.",
+              },
+              sample_input: {
+                type: "object",
+                description: "Optional sample call arguments.",
+              },
+              tool_name: {
+                type: "string",
+                description: "Optional MCP tool to sample-call.",
+              },
             },
           },
         },

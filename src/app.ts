@@ -8,18 +8,22 @@ import { PRICE_BATCH, PRICE_TRIAL, TrialRequestSchema } from "./types.js";
 export const app = new Hono();
 app.use("*", cors());
 
+/** Stable public origin for docs — never use ephemeral VERCEL_URL preview hosts. */
+const CANONICAL_PUBLIC = "https://maiyesh.vercel.app";
+
 function publicBase(c: { req: { url: string } }): string {
-  const env =
-    process.env.MAIYESH_PUBLIC_URL ??
-    process.env.PUBLIC_URL ??
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  const env = process.env.MAIYESH_PUBLIC_URL ?? process.env.PUBLIC_URL ?? "";
   if (env) return env.replace(/\/$/, "");
   try {
     const u = new URL(c.req.url);
-    return `${u.protocol}//${u.host}`;
+    const host = u.host.toLowerCase();
+    if (host === "maiyesh.vercel.app" || host.startsWith("127.0.0.1") || host.startsWith("localhost")) {
+      return `${u.protocol}//${u.host}`.replace(/\/$/, "");
+    }
   } catch {
-    return "http://127.0.0.1:3847";
+    /* fall through */
   }
+  return CANONICAL_PUBLIC;
 }
 
 app.get("/", (c) => {
@@ -115,9 +119,9 @@ Content-Type: application/json
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
   "name":"maiyesh_trial",
   "arguments":{
-    "endpoint":"https://example.com/mcp",
+    "endpoint":"${base}/mcp",
     "transport":"mcp",
-    "claims":["sub-second MCP API"]
+    "claims":["MCP surface","sub-second health"]
   }
 }}</pre>
     </section>
@@ -125,7 +129,47 @@ Content-Type: application/json
       <h2>Call it (REST)</h2>
       <pre>curl -s ${base}/v1/trial \\
   -H 'content-type: application/json' \\
-  -d '{"endpoint":"${base}/mcp","transport":"mcp","claims":["MCP surface"]}'</pre>
+  -d '{"endpoint":"${base}/mcp","transport":"mcp","claims":["MCP surface","sub-second health"]}'</pre>
+    </section>
+    <section>
+      <h2>Worked example</h2>
+      <p class="lede" style="margin-bottom:14px;font-size:1rem">
+        Real <code>maiyesh_trial</code> against this deployment’s own MCP
+        (<code>${base}/mcp</code>). Your receipt will differ; shape stays the same.
+      </p>
+      <pre>// request
+{"endpoint":"${base}/mcp","transport":"mcp","claims":["MCP surface","sub-second health"]}
+
+// response (abridged)
+{
+  "product": "maiyesh",
+  "target": "${base}/mcp",
+  "transport": "mcp",
+  "reachable": true,
+  "latency_ms": 726,
+  "schema_ok": true,
+  "tools_found": ["maiyesh_health","maiyesh_grants","maiyesh_trial","maiyesh_batch"],
+  "failures": [],
+  "score": 1,
+  "verdict": "buy_if_price_le_15",
+  "disagreements": [],
+  "claims_checked": [
+    {"claim":"MCP surface","status":"supported","note":"Found tools: maiyesh_health, …"},
+    {"claim":"sub-second health","status":"supported","note":"Observed 726ms"}
+  ],
+  "summary": "reachable · 726ms · 4 tools · score 1 · buy_if_price_le_15",
+  "audit_purpose": "arena.product_trial",
+  "receipt_id": "rcpt_…",
+  "sharedos": {
+    "namespace": "maiyesh.arena",
+    "agents": ["maiyesh.scout","maiyesh.schema","maiyesh.judge"],
+    "decisions": [
+      {"agent":"maiyesh.scout","tool":"maiyesh.probe","status":"succeeded"},
+      {"agent":"maiyesh.schema","tool":"maiyesh.probe","status":"denied","code":"tool_unavailable"},
+      {"agent":"maiyesh.judge","tool":"maiyesh.probe","status":"denied","code":"tool_unavailable"}
+    ]
+  }
+}</pre>
     </section>
   </main>
 </body>
